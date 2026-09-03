@@ -387,6 +387,10 @@ with tab_timeline:
             hover_data={"Task": True, "PIC": True, "Duration": True,
                         "Progress": True, "Seg": True, "Label": False},
         )
+        # px.timeline puts each colour in its own offset slot, so a task's two
+        # segments render on slightly different row heights (a "broken" bar).
+        # Unifying the offset/alignment groups collapses them onto one row.
+        fig.update_traces(offsetgroup="seg", alignmentgroup="seg")
         fig.update_yaxes(autorange="reversed", title="")
 
         min_start, max_end = tdf["Start"].min(), tdf["End"].max()
