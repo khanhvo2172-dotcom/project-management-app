@@ -1,0 +1,29 @@
+Task,Category,Detail,Duration,PIC,Start Date,End Date,Result Number,Result Unit,Actual Number,Frequency,Status
+Tống lượng nhấp tự nhiên (organic clicks) ước tính,Traffic (Organic Clicks),,6 months,FirstPage,2024-08-01,,8500000,Organic clicks,6041114,-,In progress
+Tạo thêm 1 tài khoản VPN và đăng nhập vào admin của website https://dienmaycholon.com/,CMS Setup,Sử dụng hỗ trợ post bài và tối ưu on-page,2 days,DMCL,2024-08-01,,2,Accounts,,1 lần,In progress
+"Tổng hợp tất cả các nội dung trên website, xem xét hiệu suất (clicks, impression) của các nội dung",Content Audit,,5 days,FirstPage,2024-08-01,,2,Files,,Hàng quý,In progress
+So sánh nội dung của đối thủ với nội dung hiện có trên website DMCL,Content Audit,,7 days,FirstPage,2024-08-01,,2,Files,,Hàng quý,In progress
+"Xác định nội dung giữ lại, cập nhật, tối ưu, viết mới",Content Audit,,7 days,FirstPage,2024-08-01,,2,Files,,Hàng quý,In progress
+Nghiên cứu từ khóa,Content Production,Từ ngày 15 - 20 hàng tháng phải hoàn thành bộ từ khóa cho tháng tiếp theo,6 days,FirstPage,2024-08-01,,6,Files,,Hàng tháng,In progress
+Kiểm tra để đảm bảo nội dung giữa hai team không trùng lặp,Content Production,"Từ ngày 21 - 26 hàng tháng, sau khi team FP có bộ từ khóa tháng tiếp theo",6 days,DMCL,2024-08-01,,,,,Hàng tháng,In progress
+Tối ưu nội dung (viết lại 70-80% nội dung mới),Content Production,"Xem chi tiết tại sheet: ""Tối ưu_Content""",6 months,FirstPage,2024-08-01,,250,Content,,Xuyên suốt thời gian SEO,In progress
+Viết mới nội dung,Content Production,"Xem chi tiết tại sheet: ""Viết mới_Từ khóa""",6 months,FirstPage,2024-08-01,,1250,Content,,,In progress
+Xuất bản nội dung,Content Production,"Xem chi tiết tại sheet: ""Pulished_Pages""",6 months,FirstPage,2024-08-01,,1500,Content,,,In progress
+"Tối ưu Internal link, SEO Title, Meta Description, Headings, Images, CTA trong bài viết mới xuất bản.",On-page SEO,,6 months,FirstPage,2024-08-01,,1500,Content,,,In progress
+"SEO audit tổng thể website: - Kiểm tra & đề xuất phương án xử lý các vấn đề về khả năng crawl, lập chỉ mục, cấu trúc website, SEO Technical: Crawl website, file robots.txt, links, meta robots tag, canonical, cấu trúc url, phân trang,… hiện tại của website - Kiểm tra, liệt kê, đề xuất phương án xử lý các vấn đề về trải nghiệm của người dùng trên website: tốc độ tải trang, các chỉ số Core Vital, Sự thân thiện trên giao diện mobile. - Kiểm tra, liệt kê, đề xuất phương án xử lý các vấn đề về tối ưu on-page trên website: Meta Data, hình ảnh,....",SEO Audit,,2 weeks,FirstPage,2024-08-01,,1,Files,,Đầu chiến dịch,In progress
+Xử lý các tác vụ kỹ thuật theo đề xuất (nếu có),SEO Audit,,2 weeks,DMCL,2024-08-01,,,,,Đầu chiến dịch,In progress
+Đảm bảo các vấn đề kỹ thuật chung trên website theo danh sách đã thống nhất,Technical SEO,"Xem danh sách vấn đề tại sheet ""Technical_Tasklist""",6 months,DMCL,2024-08-01,,,,,Xuyên suốt thời gian SEO,In progress
+Kiểm tra trạng thái file robots.txt (bao gồm trạng thái trong Search Console),Technical SEO,"Xem chi tiết tại sheet ""Technical_Weekly_Tasklist""",2 days,FirstPage,2024-08-01,,,,,Hàng tuần,In progress
+Recrawl sitemap (2 tuần/lần),Technical SEO,,2 days,FirstPage,2024-08-01,,,,,Mỗi 2 tuần,In progress
+Kiểm tra layout/chức năng filter của các trang ngành hàng/trang category so với đối thủ,Technical SEO,,2 days,FirstPage,2024-08-01,,,,,Hàng tuần,In progress
+"Kiểm tra các chức năng UX/UI khác trên website khác (như so sánh sản phẩm, searh box,..)",Technical SEO,,2 days,FirstPage,2024-08-01,,,,,Hàng tuần,In progress
+"Review các vấn đề liên quan đến crawl, index của website trong Google Search Console (GSC)",Technical SEO,,2 days,FirstPage,2024-08-01,,,,,Hàng tuần,In progress
+Kiểm tra các links được khai báo trong mục Removals trong GSC,Technical SEO,,2 days,FirstPage,2024-08-01,,,,,Hàng tuần,In progress
+Kiểm tra và phát hiện các structure data đang gặp lỗi trong GSC,Technical SEO,,2 days,FirstPage,2024-08-01,,,,,Hàng tuần,In progress
+Kiểm tra các vấn đề Thao tác thủ công (manual action) và bảo mật (sercurity) của website trong GSC,Technical SEO,,2 days,FirstPage,2024-08-01,,,,,Hàng tuần,In progress
+"Follow ""Crawl stats"" và phát hiện những vấn đề từ sever trong mục Host status trong GSC",Technical SEO,,2 days,FirstPage,2024-08-01,,,,,Hàng tuần,In progress
+Xử lý các tác vụ kỹ thuật theo đề xuất (nếu có),Technical SEO,,6 months,DMCL,2024-08-01,,,,,Xuyên suốt thời gian SEO,In progress
+Review và xác định các backlink kém chất lượng (DR <10) hoặc không phù hợp (trang có nội dung nhạy cảm) đang trỏ về website.,Backlink Management,"Xem chi tiết tại sheet ""Backlink_Management""",2 weeks,FirstPage,2024-08-01,,3,Files,,Mỗi 2 tháng,In progress
+Detect các backlinks bị mất (lost links),Backlink Management,,2 days,FirstPage,2024-08-01,,,,,Hàng tháng,In progress
+Detect các banklinks dẫn đến trang 404,Backlink Management,,2 days,FirstPage,2024-08-01,,,,,Hàng tháng,In progress
+Tư vấn xây dựng chiến lược xây dựng backlink premium,Backlink Management,,2 days,FirstPage,2024-08-01,,,,,Hàng tháng,In progress
