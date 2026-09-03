@@ -85,19 +85,53 @@ DATA_FILE = Path(__file__).parent / "data" / "sample_tasks.csv"
 # --------------------------------------------------------------------------- #
 # Data loading
 # --------------------------------------------------------------------------- #
+DEFAULT_SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets.readonly",
+    "https://www.googleapis.com/auth/drive.readonly",
+]
+
+
+def _build_credentials():
+    """Build Google credentials from secrets.
+
+    Prefers OAuth user credentials ([google_oauth], auto-refreshing via the
+    refresh token); falls back to a service account ([gcp_service_account]).
+    """
+    if "google_oauth" in st.secrets:
+        from google.oauth2.credentials import Credentials as UserCredentials
+
+        o = st.secrets["google_oauth"]
+        # Use the exact scopes the token was granted; passing a different set
+        # (e.g. spreadsheets.readonly when 'spreadsheets' was granted) makes the
+        # refresh fail with invalid_scope. None => refresh keeps granted scopes.
+        scopes = list(o["scopes"]) if "scopes" in o else None
+        return UserCredentials(
+            token=o.get("token"),
+            refresh_token=o["refresh_token"],
+            token_uri=o.get("token_uri", "https://oauth2.googleapis.com/token"),
+            client_id=o["client_id"],
+            client_secret=o["client_secret"],
+            scopes=scopes,
+        )
+    if "gcp_service_account" in st.secrets:
+        from google.oauth2.service_account import Credentials as ServiceCredentials
+
+        return ServiceCredentials.from_service_account_info(
+            dict(st.secrets["gcp_service_account"]), scopes=DEFAULT_SCOPES
+        )
+    return None
+
+
 @st.cache_data(ttl=300, show_spinner=False)
 def load_from_sheet() -> pd.DataFrame | None:
     """Read tasks from a Google Sheet if secrets are configured, else None."""
-    if "gcp_service_account" not in st.secrets or "sheet" not in st.secrets:
+    if "sheet" not in st.secrets:
+        return None
+    creds = _build_credentials()
+    if creds is None:
         return None
     import gspread
-    from google.oauth2.service_account import Credentials
 
-    scopes = ["https://www.googleapis.com/auth/spreadsheets.readonly",
-              "https://www.googleapis.com/auth/drive.readonly"]
-    creds = Credentials.from_service_account_info(
-        dict(st.secrets["gcp_service_account"]), scopes=scopes
-    )
     gc = gspread.authorize(creds)
     cfg = st.secrets["sheet"]
     sh = gc.open_by_url(cfg["url"]) if "url" in cfg else gc.open_by_key(cfg["key"])

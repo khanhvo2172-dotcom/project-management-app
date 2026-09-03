@@ -43,17 +43,22 @@ uses the `End Date` you typed in.
 
 ## Connect your Google Sheet
 
-1. **Create the sheet.** Make a Google Sheet with a tab named `Tasks` and the
-   headers above. Quickest start: in the sheet, `File → Import → Upload`
-   `data/sample_tasks.csv` (import into a new tab named `Tasks`).
-2. **Get a service account** (Google Cloud → IAM → Service Accounts → create →
-   add a JSON key). Enable the *Google Sheets API* and *Google Drive API* on the
-   project.
-3. **Share the sheet** with the service account's `client_email` (Viewer is enough).
-4. **Add secrets.** Copy `.streamlit/secrets.toml.example` → `.streamlit/secrets.toml`
-   (local) or paste it into Streamlit Cloud → *App → Settings → Secrets*. Fill in
-   the service-account JSON and your sheet `url`.
-5. The badge under the title turns **🟢 Live from Google Sheet**. Edit the sheet,
+The app supports two auth methods (see `.streamlit/secrets.toml.example`):
+
+- **OAuth user credentials** (`[google_oauth]`) — the app reads sheets *as your
+  Google account*, so **no sharing step is needed**. `scopes` must match the
+  scopes the refresh token was granted, or refresh fails with `invalid_scope`.
+- **Service account** (`[gcp_service_account]`) — share the sheet with the
+  service account's `client_email` (Viewer is enough).
+
+Steps:
+
+1. **Create the sheet** with a tab named `Tasks` and the headers above. Quickest
+   start: `File → Import → Upload` `data/sample_tasks.csv` into a tab named `Tasks`.
+2. **Add secrets.** Copy `.streamlit/secrets.toml.example` → `.streamlit/secrets.toml`
+   (local) or paste the same content into Streamlit Cloud → *App → Settings →
+   Secrets*. Fill in one auth block plus your sheet `url`.
+3. The badge under the title turns **🟢 Live from Google Sheet**. Edit the sheet,
    click **🔄 Refresh data** (or wait 5 min for the cache to expire).
 
 ---
