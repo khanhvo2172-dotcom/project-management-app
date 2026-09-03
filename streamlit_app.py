@@ -413,6 +413,9 @@ with tab_timeline:
             font_color="#111111", legend_title_text="Progress",
             margin=dict(l=10, r=10, t=30, b=76),
             bargap=0.3,
+            # Overlay (not grouped) so a task's green + yellow segments sit on the
+            # same row height and read as one continuous bar.
+            barmode="overlay",
         )
         # Weekly day-number ticks, anchored at the first Start Date.
         fig.update_xaxes(
