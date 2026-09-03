@@ -44,14 +44,22 @@ st.markdown(
       div[data-testid="stMetricValue"] { font-size: 1.6rem; font-weight: 700; }
       .stTabs [data-baseweb="tab"] { font-weight: 600; }
       .block-container { padding-top: 2rem; }
-      /* Legible filter chips (avoid black-on-black multiselect tags) */
-      span[data-baseweb="tag"] {
-        background-color: #eeeeee !important;
-        color: #111111 !important;
-        border: 1px solid #dddddd;
+      /* Legible filter chips: force a light background + dark text on the
+         selected multiselect tags (default theme paints them primaryColor
+         black -> black-on-black). Streamlit >=1.59 renders them inside
+         stMultiSelectTagsContainer; the [data-baseweb="tag"] rule covers
+         older versions. */
+      [data-testid="stMultiSelectTagsContainer"] span[role="group"] > span,
+      [data-baseweb="tag"] {
+        background-color: #e9e9e9 !important;
+        border: 1px solid #d5d5d5 !important;
       }
-      span[data-baseweb="tag"] span { color: #111111 !important; }
-      span[data-baseweb="tag"] svg { fill: #111111 !important; }
+      [data-testid="stMultiSelectTagsContainer"] span[role="group"] > span,
+      [data-testid="stMultiSelectTagsContainer"] span[role="group"] > span *,
+      [data-baseweb="tag"],
+      [data-baseweb="tag"] * { color: #111111 !important; }
+      [data-testid="stMultiSelectTagsContainer"] svg,
+      [data-baseweb="tag"] svg { fill: #111111 !important; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -331,20 +339,44 @@ with tab_timeline:
     if tdf.empty:
         st.info("No tasks have both a Start Date and an End/Duration yet.")
     else:
+        def timeline_status(row):
+            prog, committed = row["Progress"], row["Committed"]
+            if str(row["Status"]).strip().lower() == "done" or (pd.notna(prog) and prog >= 100):
+                return "Done"          # progress = 100%
+            if pd.notna(prog) and prog > 0:
+                return "In progress"   # some actual reported
+            if pd.notna(committed) and committed > 0:
+                return "Not started"   # has a target, nothing done yet (actual = 0)
+            return "In progress"       # ongoing recurring work, no numeric target
+
+        tdf["Progress status"] = tdf.apply(timeline_status, axis=1)
         tdf["Label"] = tdf["Task"].str.slice(0, 60)
         tdf = tdf.sort_values("Start")
+
+        color_map = {"Not started": "#e5484d", "In progress": "#f5a623", "Done": "#2ca02c"}
         fig = px.timeline(
-            tdf, x_start="Start", x_end="End", y="Label", color="Category",
-            hover_data={"PIC": True, "Duration": True, "Label": False},
+            tdf, x_start="Start", x_end="End", y="Label",
+            color="Progress status", color_discrete_map=color_map,
+            category_orders={"Progress status": ["Not started", "In progress", "Done"]},
+            hover_data={"PIC": True, "Duration": True, "Progress status": True, "Label": False},
         )
         fig.update_yaxes(autorange="reversed", title="")
         fig.update_layout(
             height=max(400, 26 * len(tdf)),
             plot_bgcolor="#ffffff", paper_bgcolor="#ffffff",
-            font_color="#111111", legend_title_text="Category",
+            font_color="#111111", legend_title_text="Progress",
             margin=dict(l=10, r=10, t=30, b=10),
+            bargap=0.25,
         )
-        fig.update_xaxes(gridcolor="#eeeeee")
+        # Weekly gridlines / ticks (tick0 is a Monday so weeks align Mon–Sun).
+        fig.update_xaxes(
+            gridcolor="#eeeeee",
+            dtick=7 * 24 * 60 * 60 * 1000,
+            tick0="2024-01-01",
+            tickformat="%d %b",
+            tickangle=-45,
+            ticks="outside",
+        )
         st.plotly_chart(fig, width="stretch")
 
 # ---- Overview charts ----------------------------------------------------- #
