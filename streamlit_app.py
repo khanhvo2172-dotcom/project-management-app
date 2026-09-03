@@ -339,45 +339,95 @@ with tab_timeline:
     if tdf.empty:
         st.info("No tasks have both a Start Date and an End/Duration yet.")
     else:
-        def timeline_status(row):
-            prog, committed = row["Progress"], row["Committed"]
-            if str(row["Status"]).strip().lower() == "done" or (pd.notna(prog) and prog >= 100):
-                return "Done"          # progress = 100%
-            if pd.notna(prog) and prog > 0:
-                return "In progress"   # some actual reported
-            if pd.notna(committed) and committed > 0:
-                return "Not started"   # has a target, nothing done yet (actual = 0)
-            return "In progress"       # ongoing recurring work, no numeric target
+        tdf = tdf.sort_values("Start").reset_index(drop=True)
 
-        tdf["Progress status"] = tdf.apply(timeline_status, axis=1)
-        tdf["Label"] = tdf["Task"].str.slice(0, 60)
-        tdf = tdf.sort_values("Start")
+        # Unique display label per row (zero-width spaces disambiguate tasks
+        # whose first 60 chars collide, without changing what you see).
+        labels, seen = [], set()
+        for task in tdf["Task"]:
+            lbl = str(task)[:60]
+            while lbl in seen:
+                lbl += "​"
+            seen.add(lbl)
+            labels.append(lbl)
+        tdf["Label"] = labels
 
-        color_map = {"Not started": "#e5484d", "In progress": "#f5a623", "Done": "#2ca02c"}
+        GREEN, YELLOW, RED = "#2ca02c", "#f5a623", "#e5484d"
+
+        # Each task becomes 1-2 horizontal segments: a green "Completed" part
+        # sized to its % progress plus a yellow "In progress" remainder.
+        # Not-started tasks are a single red bar; done tasks a single green bar.
+        segs = []
+        for _, r in tdf.iterrows():
+            start, end, label = r["Start"], r["End"], r["Label"]
+            span = end - start
+            p, committed = r["Progress"], r["Committed"]
+            done = str(r["Status"]).strip().lower() == "done" or (pd.notna(p) and p >= 100)
+            base = dict(Label=label, Task=str(r["Task"])[:80], PIC=r["PIC"], Duration=r["Duration"])
+            if done:
+                segs.append({**base, "Start": start, "End": end, "Seg": "Completed", "Progress": "100%"})
+            elif pd.notna(p) and p > 0:
+                split = start + span * (min(p, 100) / 100.0)
+                segs.append({**base, "Start": start, "End": split, "Seg": "Completed", "Progress": f"{p:.0f}%"})
+                segs.append({**base, "Start": split, "End": end, "Seg": "In progress", "Progress": f"{p:.0f}%"})
+            elif pd.notna(committed) and committed > 0:
+                segs.append({**base, "Start": start, "End": end, "Seg": "Not started", "Progress": "0%"})
+            else:
+                segs.append({**base, "Start": start, "End": end, "Seg": "In progress", "Progress": "—"})
+        sdf = pd.DataFrame(segs)
+
+        color_map = {"Completed": GREEN, "In progress": YELLOW, "Not started": RED}
         fig = px.timeline(
-            tdf, x_start="Start", x_end="End", y="Label",
-            color="Progress status", color_discrete_map=color_map,
-            category_orders={"Progress status": ["Not started", "In progress", "Done"]},
-            hover_data={"PIC": True, "Duration": True, "Progress status": True, "Label": False},
+            sdf, x_start="Start", x_end="End", y="Label", color="Seg",
+            color_discrete_map=color_map,
+            category_orders={
+                "Seg": ["Completed", "In progress", "Not started"],
+                "Label": tdf["Label"].tolist()[::-1],  # first task on top
+            },
+            hover_data={"Task": True, "PIC": True, "Duration": True,
+                        "Progress": True, "Seg": True, "Label": False},
         )
         fig.update_yaxes(autorange="reversed", title="")
+
+        min_start, max_end = tdf["Start"].min(), tdf["End"].max()
+
+        # Alternating month background bands + a month-name row beneath the axis.
+        month = pd.Timestamp(year=min_start.year, month=min_start.month, day=1)
+        i = 0
+        while month <= max_end:
+            nxt = month + pd.DateOffset(months=1)
+            b0, b1 = max(month, min_start), min(nxt, max_end)
+            if b0 < b1:
+                if i % 2 == 1:
+                    fig.add_vrect(x0=b0, x1=b1, fillcolor="#f4f4f4", opacity=1,
+                                  line_width=0, layer="below")
+                fig.add_annotation(x=b0 + (b1 - b0) / 2, y=0, xref="x", yref="paper",
+                                   yshift=-42,  # fixed px below the axis, independent of height
+                                   text=month.strftime("%b %Y") if month.month in (1, 7) else month.strftime("%b"),
+                                   showarrow=False, font=dict(size=13, color="#111111"), yanchor="top")
+            month, i = nxt, i + 1
+
         fig.update_layout(
-            height=max(400, 26 * len(tdf)),
+            height=max(420, 28 * len(tdf)),
             plot_bgcolor="#ffffff", paper_bgcolor="#ffffff",
             font_color="#111111", legend_title_text="Progress",
-            margin=dict(l=10, r=10, t=30, b=10),
-            bargap=0.25,
+            margin=dict(l=10, r=10, t=30, b=76),
+            bargap=0.3,
         )
-        # Weekly gridlines / ticks (tick0 is a Monday so weeks align Mon–Sun).
+        # Weekly day-number ticks, anchored at the first Start Date.
         fig.update_xaxes(
-            gridcolor="#eeeeee",
-            dtick=7 * 24 * 60 * 60 * 1000,
-            tick0="2024-01-01",
-            tickformat="%d %b",
-            tickangle=-45,
-            ticks="outside",
+            range=[min_start, max_end + pd.Timedelta(days=1)],
+            gridcolor="#eeeeee", dtick=7 * 24 * 60 * 60 * 1000,
+            tick0=min_start.strftime("%Y-%m-%d"),
+            tickformat="%d", tickangle=0, ticks="outside",
+            tickfont=dict(size=10),
         )
         st.plotly_chart(fig, width="stretch")
+        st.caption(
+            "Each bar fills green by % completed, yellow for the remainder; "
+            "red = not started, full green = done. Shaded bands mark months; "
+            "tick numbers are day-of-month (weekly, from the first start date)."
+        )
 
 # ---- Overview charts ----------------------------------------------------- #
 with tab_overview:
